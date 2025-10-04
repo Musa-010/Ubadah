@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initIntersectionObserver();
     initNavbarEffects();
     initActiveNavLinks();
+    initBookingModal();
+    initNewsletterForm();
 });
 
 // Counter Animation
@@ -382,6 +384,183 @@ function easeInOutCubic(t) {
     return t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
 }
 
+// Booking Modal Functions
+function initBookingModal() {
+    const modalBackdrop = document.getElementById('bookingModal');
+    const modalCloseBtn = document.querySelector('.modal-close');
+    const bookingButtons = document.querySelectorAll('.btn[href="#book"], .plan-card .btn');
+    const bookingForm = document.getElementById('bookingForm');
+    
+    if (!modalBackdrop) return;
+    
+    // Open modal
+    bookingButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const planName = btn.closest('.plan-card')?.querySelector('h3')?.textContent || '';
+            if (planName) {
+                const planSelect = document.getElementById('planSelect');
+                if (planSelect) {
+                    // Pre-select the plan if clicked from a specific card
+                    for (let option of planSelect.options) {
+                        if (option.text.includes(planName)) {
+                            option.selected = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            modalBackdrop.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
+        });
+    });
+    
+    // Close modal
+    function closeModal() {
+        modalBackdrop.classList.remove('active');
+        document.body.style.overflow = ''; // Restore scrolling
+    }
+    
+    if (modalCloseBtn) {
+        modalCloseBtn.addEventListener('click', closeModal);
+    }
+    
+    // Close on backdrop click
+    modalBackdrop.addEventListener('click', (e) => {
+        if (e.target === modalBackdrop) {
+            closeModal();
+        }
+    });
+    
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modalBackdrop.classList.contains('active')) {
+            closeModal();
+        }
+    });
+    
+    // Handle form submission
+    if (bookingForm) {
+        bookingForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = new FormData(bookingForm);
+            const data = Object.fromEntries(formData);
+            
+            // Show success message (you can integrate with backend here)
+            showToast('🎉 Booking request submitted! We\'ll contact you shortly.', 'success');
+            
+            // Close modal and reset form
+            closeModal();
+            bookingForm.reset();
+            
+            // Optional: Send data to backend
+            console.log('Booking data:', data);
+        });
+    }
+}
+
+// Newsletter Form Functions
+function initNewsletterForm() {
+    const newsletterForm = document.querySelector('.newsletter-form');
+    
+    if (!newsletterForm) return;
+    
+    newsletterForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const emailInput = newsletterForm.querySelector('.newsletter-input');
+        const email = emailInput.value.trim();
+        
+        // Basic email validation
+        if (!email || !email.includes('@')) {
+            showToast('⚠️ Please enter a valid email address', 'error');
+            return;
+        }
+        
+        // Show success message
+        showToast('✅ Thanks for subscribing to our newsletter!', 'success');
+        
+        // Reset form
+        newsletterForm.reset();
+        
+        // Optional: Send to backend
+        console.log('Newsletter subscription:', email);
+    });
+}
+
+// Toast Notification System
+function showToast(message, type = 'info') {
+    // Remove existing toasts
+    const existingToast = document.querySelector('.toast-notification');
+    if (existingToast) {
+        existingToast.remove();
+    }
+    
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${type}`;
+    toast.textContent = message;
+    
+    // Add styles
+    Object.assign(toast.style, {
+        position: 'fixed',
+        top: '20px',
+        right: '20px',
+        padding: '1rem 1.5rem',
+        background: type === 'success' ? 'linear-gradient(135deg, #14B8A6, #10B981)' : 
+                    type === 'error' ? 'linear-gradient(135deg, #EF4444, #DC2626)' :
+                    'linear-gradient(135deg, #7C3AED, #6366F1)',
+        color: 'white',
+        borderRadius: '10px',
+        boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
+        zIndex: '10001',
+        fontSize: '1rem',
+        fontWeight: '600',
+        maxWidth: '400px',
+        animation: 'slideInRight 0.3s ease',
+        backdropFilter: 'blur(10px)'
+    });
+    
+    // Add animation keyframes if not exists
+    if (!document.querySelector('#toast-animation-styles')) {
+        const style = document.createElement('style');
+        style.id = 'toast-animation-styles';
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(toast);
+    
+    // Auto-remove after 4 seconds
+    setTimeout(() => {
+        toast.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
 // Export functions for potential external use
 window.FiberLinkApp = {
     initCounter,
@@ -393,7 +572,10 @@ window.FiberLinkApp = {
     initScrollParallax,
     initIntersectionObserver,
     initNavbarEffects,
-    initActiveNavLinks
+    initActiveNavLinks,
+    initBookingModal,
+    initNewsletterForm,
+    showToast
 };
 
 // Navbar Scroll Effects
