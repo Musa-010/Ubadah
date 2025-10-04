@@ -740,6 +740,305 @@ nav {
     font-weight: 700;
 }
 
+/* Book Now Form Section */
+.book-now-section {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.5), rgba(124, 58, 237, 0.1));
+    position: relative;
+    overflow: hidden;
+}
+
+.book-now-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 30% 50%, rgba(20, 184, 166, 0.1), transparent 50%),
+                radial-gradient(circle at 70% 50%, rgba(124, 58, 237, 0.1), transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.book-now-section .container {
+    position: relative;
+    z-index: 1;
+}
+
+.section-subtitle {
+    text-align: center;
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 3rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.book-now-card {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 3rem;
+    animation: fadeInUp 0.8s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Book Now Form Styles */
+.book-now-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.book-now-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.book-now-form label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.required {
+    color: #FF6BA6;
+    font-size: 1.2rem;
+}
+
+.book-now-form input,
+.book-now-form textarea,
+.book-now-form select {
+    padding: 1rem 1.2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: white;
+    font-family: var(--font-family);
+    font-size: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+}
+
+.book-now-form input:focus,
+.book-now-form textarea:focus,
+.book-now-form select:focus {
+    border-color: var(--teal);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.1),
+                0 0 20px rgba(20, 184, 166, 0.3);
+    transform: translateY(-2px);
+}
+
+.book-now-form input::placeholder,
+.book-now-form textarea::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.book-now-form select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2314B8A6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 20px;
+    padding-right: 3rem;
+}
+
+.book-now-form select option {
+    background: var(--dark);
+    color: white;
+    padding: 1rem;
+}
+
+.book-now-form textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Error Message */
+.error-message {
+    font-size: 0.85rem;
+    color: #FF6BA6;
+    display: none;
+    margin-top: -0.3rem;
+}
+
+.form-group.error .error-message {
+    display: block;
+}
+
+.form-group.error input,
+.form-group.error textarea,
+.form-group.error select {
+    border-color: #FF6BA6;
+    animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+/* Book Now Submit Button */
+.book-now-submit-btn {
+    margin-top: 1rem;
+    padding: 1.2rem 3rem;
+    background: linear-gradient(135deg, var(--teal), var(--purple), var(--pink));
+    background-size: 200% 200%;
+    border: none;
+    border-radius: 50px;
+    color: white;
+    font-weight: 700;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    box-shadow: 0 10px 30px rgba(20, 184, 166, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.book-now-submit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.book-now-submit-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 15px 50px rgba(124, 58, 237, 0.5);
+    background-position: 100% 50%;
+}
+
+.book-now-submit-btn:hover::before {
+    left: 100%;
+}
+
+.book-now-submit-btn:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+.btn-icon {
+    font-size: 1.4rem;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+/* Success Alert Styling */
+.success-alert {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.95), rgba(16, 185, 129, 0.95));
+    backdrop-filter: blur(20px);
+    padding: 3rem 4rem;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    z-index: 10002;
+    text-align: center;
+    animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+@keyframes popIn {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+.success-alert h3 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.success-alert p {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 1.5rem;
+}
+
+.success-alert .check-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: scaleIn 0.6s ease 0.3s backwards;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+/* Responsive Design for Book Now Form */
+@media (max-width: 768px) {
+    .book-now-card {
+        padding: 2rem 1.5rem;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .book-now-submit-btn {
+        width: 100%;
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+    }
+}
+
 /* Footer */
 footer {
     position: relative;

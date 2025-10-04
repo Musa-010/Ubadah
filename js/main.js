@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initActiveNavLinks();
     initBookingModal();
     initNewsletterForm();
+    initBookNowForm();
+    initBookNowScrollButtons();
 });
 
 // Counter Animation
@@ -575,6 +577,8 @@ window.FiberLinkApp = {
     initActiveNavLinks,
     initBookingModal,
     initNewsletterForm,
+    initBookNowForm,
+    initBookNowScrollButtons,
     showToast
 };
 
@@ -662,4 +666,180 @@ function initActiveNavLinks() {
             }
         };
     }
+}
+
+// Book Now Form Functionality
+function initBookNowForm() {
+    const form = document.getElementById('bookNowForm');
+    if (!form) return;
+    
+    // Add real-time validation on blur
+    const inputs = form.querySelectorAll('input[required], textarea[required], select[required]');
+    inputs.forEach(input => {
+        input.addEventListener('blur', () => validateField(input));
+        input.addEventListener('input', () => {
+            // Remove error state when user starts typing
+            const formGroup = input.closest('.form-group');
+            if (formGroup.classList.contains('error')) {
+                formGroup.classList.remove('error');
+            }
+        });
+    });
+    
+    // Form submission handler
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Validate all fields
+        let isValid = true;
+        inputs.forEach(input => {
+            if (!validateField(input)) {
+                isValid = false;
+            }
+        });
+        
+        if (isValid) {
+            // Get form data
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+            
+            // Show success alert
+            showSuccessAlert();
+            
+            // Reset form after 2 seconds
+            setTimeout(() => {
+                form.reset();
+            }, 2000);
+            
+            // Log data (you can replace this with actual backend call)
+            console.log('Booking Data:', data);
+        } else {
+            // Scroll to first error
+            const firstError = form.querySelector('.form-group.error');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    });
+}
+
+// Validate individual field
+function validateField(input) {
+    const formGroup = input.closest('.form-group');
+    const errorMessage = formGroup.querySelector('.error-message');
+    let isValid = true;
+    let message = '';
+    
+    // Check if field is empty
+    if (input.hasAttribute('required') && !input.value.trim()) {
+        isValid = false;
+        message = 'This field is required';
+    }
+    // Validate email format
+    else if (input.type === 'email' && input.value.trim()) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(input.value.trim())) {
+            isValid = false;
+            message = 'Please enter a valid email address';
+        }
+    }
+    // Validate phone format (basic)
+    else if (input.type === 'tel' && input.value.trim()) {
+        const phoneRegex = /^[\d\s\+\-\(\)]{10,}$/;
+        if (!phoneRegex.test(input.value.trim())) {
+            isValid = false;
+            message = 'Please enter a valid phone number';
+        }
+    }
+    
+    // Update UI based on validation
+    if (!isValid) {
+        formGroup.classList.add('error');
+        errorMessage.textContent = message;
+    } else {
+        formGroup.classList.remove('error');
+        errorMessage.textContent = '';
+    }
+    
+    return isValid;
+}
+
+// Show success alert
+function showSuccessAlert() {
+    // Create backdrop
+    const backdrop = document.createElement('div');
+    backdrop.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+        z-index: 10001;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    // Create alert
+    const alert = document.createElement('div');
+    alert.className = 'success-alert';
+    alert.innerHTML = `
+        <div class="check-icon">✓</div>
+        <h3>Booking Submitted Successfully!</h3>
+        <p>Thank you for choosing our service. We'll contact you shortly to confirm your connection.</p>
+    `;
+    
+    document.body.appendChild(backdrop);
+    document.body.appendChild(alert);
+    
+    // Close alert after 3 seconds
+    setTimeout(() => {
+        backdrop.style.animation = 'fadeOut 0.3s ease';
+        alert.style.animation = 'fadeOut 0.3s ease';
+        
+        setTimeout(() => {
+            backdrop.remove();
+            alert.remove();
+        }, 300);
+    }, 3000);
+    
+    // Click backdrop to close
+    backdrop.addEventListener('click', () => {
+        backdrop.style.animation = 'fadeOut 0.3s ease';
+        alert.style.animation = 'fadeOut 0.3s ease';
+        
+        setTimeout(() => {
+            backdrop.remove();
+            alert.remove();
+        }, 300);
+    });
+}
+
+// Smooth scroll to Book Now section when clicking "Book Now" buttons
+function initBookNowScrollButtons() {
+    // Find all buttons that should scroll to book now section
+    const bookButtons = document.querySelectorAll('.btn[href="#book"], .plan-btn');
+    
+    bookButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const bookNowSection = document.getElementById('book-now');
+            if (bookNowSection) {
+                // Smooth scroll to section
+                bookNowSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                // Focus on first input after scroll
+                setTimeout(() => {
+                    const firstInput = document.getElementById('bookFullName');
+                    if (firstInput) {
+                        firstInput.focus();
+                    }
+                }, 800);
+            }
+        });
+    });
 }
