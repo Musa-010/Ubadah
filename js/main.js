@@ -3,6 +3,8 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize all functionality
+    initTypingEffect();
+    initHeroButtons();
     initCounter();
     initParallaxEffects();
     initHeroTiltEffect();
@@ -18,6 +20,70 @@ document.addEventListener('DOMContentLoaded', function() {
     initBookNowForm();
     initBookNowScrollButtons();
 });
+
+// Typing Effect for Hero Tagline
+function initTypingEffect() {
+    const tagline = document.getElementById('typingTagline');
+    if (!tagline) return;
+    
+    const text = tagline.textContent;
+    tagline.textContent = '';
+    tagline.style.opacity = '1';
+    
+    let index = 0;
+    const typingSpeed = 80; // milliseconds per character
+    
+    function typeCharacter() {
+        if (index < text.length) {
+            tagline.textContent += text.charAt(index);
+            index++;
+            setTimeout(typeCharacter, typingSpeed);
+        } else {
+            // Add cursor blink effect after typing completes
+            tagline.style.borderRight = 'none';
+        }
+    }
+    
+    // Add typing cursor effect
+    tagline.style.borderRight = '3px solid var(--teal)';
+    tagline.style.paddingRight = '5px';
+    
+    // Start typing after a small delay
+    setTimeout(typeCharacter, 500);
+}
+
+// Hero Button Smooth Scroll Functionality
+function initHeroButtons() {
+    const getStartedBtn = document.getElementById('getStartedBtn');
+    const explorePlansBtn = document.getElementById('explorePlansBtn');
+    
+    // Get Started button scrolls to Plans section
+    if (getStartedBtn) {
+        getStartedBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            smoothScrollToSection('plans');
+        });
+    }
+    
+    // Explore Plans button scrolls to Plans section
+    if (explorePlansBtn) {
+        explorePlansBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            smoothScrollToSection('plans');
+        });
+    }
+}
+
+// Smooth Scroll Helper Function
+function smoothScrollToSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+    }
+}
 
 // Counter Animation
 function initCounter() {
@@ -565,6 +631,8 @@ function showToast(message, type = 'info') {
 
 // Export functions for potential external use
 window.FiberLinkApp = {
+    initTypingEffect,
+    initHeroButtons,
     initCounter,
     initParallaxEffects,
     initHeroTiltEffect,
@@ -579,6 +647,7 @@ window.FiberLinkApp = {
     initNewsletterForm,
     initBookNowForm,
     initBookNowScrollButtons,
+    smoothScrollToSection,
     showToast
 };
 
