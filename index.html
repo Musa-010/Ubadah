@@ -103,48 +103,53 @@
     <!-- Plans Section -->
     <section class="section" id="plans">
         <div class="container">
-            <h2 class="section-title">Choose Your Perfect Plan</h2>
+            <h2 class="section-title">💎 Package Categories</h2>
             <div class="plans-grid">
                 <div class="plan-card">
-                    <h3 class="plan-name">Basic</h3>
-                    <div class="plan-price">$29<span style="font-size: 1.5rem;">/mo</span></div>
-                    <p class="plan-period">Perfect for casual browsing</p>
+                    <h3 class="plan-name">Basic Plan</h3>
+                    <div class="plan-price">Rs. 3,000<span style="font-size: 1.5rem;">/mo</span></div>
+                    <p class="plan-period">Polo 6+4 = 10MB</p>
                     <ul class="plan-features">
-                        <li>100 Mbps Speed</li>
-                        <li>Unlimited Data</li>
-                        <li>Email Support</li>
-                        <li>Free Installation</li>
+                        <li><strong>Package:</strong> Polo 6+4 = 10MB</li>
+                        <li><strong>Monthly Bill:</strong> Rs. 3,000</li>
+                        <li><strong>Installation:</strong> Rs. 7,500</li>
+                        <li><strong>Total Amount:</strong> Rs. 10,500</li>
                     </ul>
                     <button class="plan-btn">Choose Basic</button>
                 </div>
                 <div class="plan-card featured">
                     <div class="plan-ribbon">MOST POPULAR</div>
-                    <h3 class="plan-name">Standard</h3>
-                    <div class="plan-price">$59<span style="font-size: 1.5rem;">/mo</span></div>
-                    <p class="plan-period">Ideal for families</p>
+                    <h3 class="plan-name">Standard Plan</h3>
+                    <div class="plan-price">Rs. 3,248<span style="font-size: 1.5rem;">/mo</span></div>
+                    <p class="plan-period">Super 6 MB or Super 8 MB</p>
                     <ul class="plan-features">
-                        <li>500 Mbps Speed</li>
-                        <li>Unlimited Data</li>
-                        <li>24/7 Phone Support</li>
-                        <li>Free Router & Installation</li>
-                        <li>No Contract</li>
+                        <li><strong>Option 1:</strong> Super 6 MB</li>
+                        <li>Monthly: Rs. 3,248 | Total: Rs. 10,748</li>
+                        <li><strong>Option 2:</strong> Super 8 MB</li>
+                        <li>Monthly: Rs. 3,800 | Total: Rs. 11,300</li>
+                        <li><strong>Installation:</strong> Rs. 7,500</li>
                     </ul>
                     <button class="plan-btn">Choose Standard</button>
                 </div>
                 <div class="plan-card">
-                    <h3 class="plan-name">Premium</h3>
-                    <div class="plan-price">$99<span style="font-size: 1.5rem;">/mo</span></div>
-                    <p class="plan-period">For power users</p>
+                    <h3 class="plan-name">Premium Plan</h3>
+                    <div class="plan-price">Rs. 4,300<span style="font-size: 1.5rem;">/mo</span></div>
+                    <p class="plan-period">Super 10 MB or Super 12 MB</p>
                     <ul class="plan-features">
-                        <li>1 Gbps Speed</li>
-                        <li>Unlimited Data</li>
-                        <li>Priority Support</li>
-                        <li>Premium Router & Installation</li>
-                        <li>No Contract</li>
-                        <li>Static IP Included</li>
+                        <li><strong>Option 1:</strong> Super 10 MB</li>
+                        <li>Monthly: Rs. 4,300 | Total: Rs. 11,800</li>
+                        <li><strong>Option 2:</strong> Super 12 MB</li>
+                        <li>Monthly: Rs. 4,610 | Total: Rs. 12,110</li>
+                        <li><strong>Installation:</strong> Rs. 7,500</li>
                     </ul>
                     <button class="plan-btn">Choose Premium</button>
                 </div>
+            </div>
+            
+            <!-- Installation Info Note -->
+            <div class="installation-info">
+                <h3>🧾 Installation Information</h3>
+                <p><strong>Installation fee is Rs. 7,500</strong> (includes 50 meters of wire). An additional <strong>Rs. 40 will be charged per extra meter</strong> beyond 50 meters.</p>
             </div>
         </div>
     </section>
@@ -300,9 +305,11 @@
                     <label for="plan">Select Plan</label>
                     <select id="plan" name="plan" required>
                         <option value="">Choose a plan...</option>
-                        <option value="basic">Basic - $29/month</option>
-                        <option value="standard">Standard - $59/month</option>
-                        <option value="premium">Premium - $99/month</option>
+                        <option value="basic-10mb">Basic Plan - Polo 10MB (Rs. 3,000/month)</option>
+                        <option value="standard-6mb">Standard Plan - Super 6MB (Rs. 3,248/month)</option>
+                        <option value="standard-8mb">Standard Plan - Super 8MB (Rs. 3,800/month)</option>
+                        <option value="premium-10mb">Premium Plan - Super 10MB (Rs. 4,300/month)</option>
+                        <option value="premium-12mb">Premium Plan - Super 12MB (Rs. 4,610/month)</option>
                     </select>
                 </div>
                 <button type="submit" class="form-submit-btn">Complete Booking</button>
