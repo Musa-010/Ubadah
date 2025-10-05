@@ -245,12 +245,23 @@ function initMobileMenu() {
     
     // Close menu when clicking on a link
     navLinks.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', closeMobileMenu);
+        link.addEventListener('click', () => {
+            closeMobileMenu();
+        });
     });
     
     // Close menu when clicking outside
     document.addEventListener('click', (e) => {
-        if (isMenuOpen && !navLinks.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+        if (isMenuOpen && 
+            !navLinks.contains(e.target) && 
+            !mobileMenuBtn.contains(e.target)) {
+            closeMobileMenu();
+        }
+    });
+    
+    // Close menu on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && isMenuOpen) {
             closeMobileMenu();
         }
     });
@@ -259,18 +270,9 @@ function initMobileMenu() {
         isMenuOpen = !isMenuOpen;
         
         if (isMenuOpen) {
-            navLinks.style.display = 'flex';
-            navLinks.style.flexDirection = 'column';
-            navLinks.style.position = 'absolute';
-            navLinks.style.top = '100%';
-            navLinks.style.left = '0';
-            navLinks.style.right = '0';
-            navLinks.style.background = 'rgba(15, 23, 42, 0.95)';
-            navLinks.style.backdropFilter = 'blur(20px)';
-            navLinks.style.padding = '2rem';
-            navLinks.style.border = '1px solid rgba(255, 255, 255, 0.2)';
-            navLinks.style.borderTop = 'none';
-            mobileMenuBtn.textContent = '✕';
+            navLinks.classList.add('mobile-active');
+            mobileMenuBtn.innerHTML = '✕';
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
         } else {
             closeMobileMenu();
         }
@@ -278,17 +280,9 @@ function initMobileMenu() {
     
     function closeMobileMenu() {
         isMenuOpen = false;
-        navLinks.style.display = '';
-        navLinks.style.flexDirection = '';
-        navLinks.style.position = '';
-        navLinks.style.top = '';
-        navLinks.style.left = '';
-        navLinks.style.right = '';
-        navLinks.style.background = '';
-        navLinks.style.backdropFilter = '';
-        navLinks.style.padding = '';
-        navLinks.style.border = '';
-        mobileMenuBtn.textContent = '☰';
+        navLinks.classList.remove('mobile-active');
+        mobileMenuBtn.innerHTML = '☰';
+        document.body.style.overflow = ''; // Restore scrolling
     }
 }
 
