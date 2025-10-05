@@ -2386,6 +2386,60 @@ footer {
 .speed-gauge {
     position: relative;
     margin-bottom: 2rem;
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Animated background glow for the gauge */
+.speed-gauge::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    background: radial-gradient(circle, rgba(20, 184, 166, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: glow-pulse 3s ease-in-out infinite;
+    z-index: -1;
+}
+
+@keyframes glow-pulse {
+    0%, 100% { 
+        transform: scale(1);
+        opacity: 0.5;
+    }
+    50% { 
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+/* Enhanced SVG gauge animations */
+.speed-gauge svg {
+    filter: drop-shadow(0 0 20px rgba(20, 184, 166, 0.3));
+    transition: all 0.3s ease;
+}
+
+.speed-gauge:hover svg {
+    filter: drop-shadow(0 0 30px rgba(20, 184, 166, 0.5));
+    transform: scale(1.02);
+}
+
+/* Animated gauge progress with gradient effect */
+#gauge-progress {
+    transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: gauge-shimmer 3s linear infinite;
+}
+
+@keyframes gauge-shimmer {
+    0% { filter: brightness(1); }
+    50% { filter: brightness(1.2) saturate(1.3); }
+    100% { filter: brightness(1); }
 }
 
 .speed-display {
@@ -2394,17 +2448,42 @@ footer {
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
+    animation: bounce-subtle 2s ease-in-out infinite;
+}
+
+@keyframes bounce-subtle {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.05); }
 }
 
 .speed-number {
     font-size: 3rem;
     font-weight: 800;
-    background: linear-gradient(135deg, var(--teal), var(--purple));
+    background: linear-gradient(135deg, var(--teal), var(--purple), var(--pink));
+    background-size: 200% auto;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     display: block;
     line-height: 1;
+    animation: gradient-shift 3s ease-in-out infinite;
+    text-shadow: 0 0 30px rgba(20, 184, 166, 0.5);
+    transition: all 0.3s ease;
+}
+
+@keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Speed number animation during testing */
+.speed-number.testing {
+    animation: number-pulse 1s ease-in-out infinite, gradient-shift 3s ease-in-out infinite;
+}
+
+@keyframes number-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
 }
 
 .speed-unit {
@@ -2414,6 +2493,18 @@ footer {
     letter-spacing: 0.1em;
     margin-top: 0.5rem;
     display: block;
+    animation: fade-glow 2s ease-in-out infinite;
+}
+
+@keyframes fade-glow {
+    0%, 100% { 
+        opacity: 0.6;
+        text-shadow: none;
+    }
+    50% { 
+        opacity: 0.9;
+        text-shadow: 0 0 10px rgba(20, 184, 166, 0.6);
+    }
 }
 
 .test-speed-btn {
@@ -2429,44 +2520,104 @@ footer {
     overflow: hidden;
     transition: all 0.3s ease;
     margin-bottom: 1.5rem;
+    box-shadow: 0 4px 15px rgba(20, 184, 166, 0.3);
+    animation: button-glow 4s ease-in-out infinite;
+}
+
+@keyframes button-glow {
+    0%, 100% { 
+        box-shadow: 0 4px 15px rgba(20, 184, 166, 0.3);
+        transform: translateY(0);
+    }
+    50% { 
+        box-shadow: 0 8px 25px rgba(20, 184, 166, 0.5), 0 0 30px rgba(124, 58, 237, 0.3);
+        transform: translateY(-2px);
+    }
 }
 
 .test-speed-btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(20, 184, 166, 0.4);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(20, 184, 166, 0.6), 0 0 40px rgba(124, 58, 237, 0.4);
+    animation: none;
 }
 
 .test-speed-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    animation: disabled-pulse 2s ease-in-out infinite;
 }
 
+@keyframes disabled-pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 0.4; }
+}
+
+/* Enhanced button ripple effect */
 .btn-pulse {
     position: absolute;
     top: 50%;
     left: 50%;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.3);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
     border-radius: 12px;
     transform: translate(-50%, -50%) scale(0);
     animation: pulse-btn 2s infinite;
+    pointer-events: none;
 }
 
 @keyframes pulse-btn {
-    0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
-    100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+    0% { 
+        transform: translate(-50%, -50%) scale(0); 
+        opacity: 1; 
+    }
+    70% { 
+        transform: translate(-50%, -50%) scale(1.2); 
+        opacity: 0.3; 
+    }
+    100% { 
+        transform: translate(-50%, -50%) scale(1.5); 
+        opacity: 0; 
+    }
+}
+
+/* Testing state animations */
+.test-speed-btn.testing {
+    animation: testing-animation 1.5s ease-in-out infinite;
+}
+
+@keyframes testing-animation {
+    0%, 100% { 
+        background: linear-gradient(135deg, var(--teal), var(--purple));
+    }
+    50% { 
+        background: linear-gradient(135deg, var(--purple), var(--pink));
+    }
 }
 
 .speed-status {
     color: rgba(255, 255, 255, 0.7);
     font-size: 1rem;
     line-height: 1.6;
+    transition: all 0.3s ease;
+    min-height: 1.6em;
 }
 
 .speed-status.testing {
     color: var(--teal);
     font-weight: 600;
+    animation: text-glow 2s ease-in-out infinite;
+}
+
+@keyframes text-glow {
+    0%, 100% { 
+        text-shadow: 0 0 5px rgba(20, 184, 166, 0.5);
+        transform: scale(1);
+    }
+    50% { 
+        text-shadow: 0 0 15px rgba(20, 184, 166, 0.8), 0 0 25px rgba(124, 58, 237, 0.4);
+        transform: scale(1.02);
+    }
 }
 
 /* Coverage Checker Section */
