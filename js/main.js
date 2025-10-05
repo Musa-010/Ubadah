@@ -906,3 +906,461 @@ function initBookNowScrollButtons() {
         });
     });
 }
+
+// ========================================
+// ENHANCED FEATURES INITIALIZATION
+// ========================================
+
+// Scroll Progress Bar
+function initScrollProgress() {
+    const progressBar = document.getElementById('scrollProgress');
+    if (!progressBar) return;
+    
+    window.addEventListener('scroll', () => {
+        const scrollTop = window.pageYOffset;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollPercent = (scrollTop / docHeight) * 100;
+        progressBar.style.width = scrollPercent + '%';
+    });
+}
+
+// Scroll to Top Button with Progress Ring
+function initScrollToTop() {
+    const scrollBtn = document.getElementById('scrollToTop');
+    if (!scrollBtn) return;
+    
+    const progressCircle = scrollBtn.querySelector('.progress-ring-circle');
+    const radius = 20;
+    const circumference = radius * 2 * Math.PI;
+    
+    progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
+    progressCircle.style.strokeDashoffset = circumference;
+    
+    window.addEventListener('scroll', () => {
+        const scrollTop = window.pageYOffset;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollPercent = scrollTop / docHeight;
+        
+        // Show/hide button
+        if (scrollTop > 300) {
+            scrollBtn.classList.add('visible');
+        } else {
+            scrollBtn.classList.remove('visible');
+        }
+        
+        // Update progress ring
+        const offset = circumference - (scrollPercent * circumference);
+        progressCircle.style.strokeDashoffset = offset;
+    });
+    
+    scrollBtn.addEventListener('click', () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+}
+
+// Toast Notification System
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `
+        <span class="toast-icon">${type === 'success' ? '✓' : '✕'}</span>
+        <span class="toast-message">${message}</span>
+    `;
+    container.appendChild(toast);
+    
+    // Trigger animation
+    setTimeout(() => toast.classList.add('show'), 100);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Chat Widget
+function initChatWidget() {
+    const chatTrigger = document.getElementById('chatTrigger');
+    if (!chatTrigger) return;
+    
+    chatTrigger.addEventListener('click', () => {
+        showToast('Chat feature coming soon! For now, please call us at 1-800-FIBER-LINK', 'success');
+        
+        // Remove badge after click
+        const badge = chatTrigger.querySelector('.chat-badge');
+        if (badge) {
+            badge.style.display = 'none';
+        }
+    });
+}
+
+// Speed Test Widget
+function initSpeedTest() {
+    const btn = document.getElementById('testSpeedBtn');
+    const speedNumber = document.getElementById('speedNumber');
+    const speedStatus = document.getElementById('speedStatus');
+    const gaugePath = document.getElementById('gauge-progress');
+    
+    if (!btn || !speedNumber || !speedStatus || !gaugePath) return;
+    
+    btn.addEventListener('click', function() {
+        btn.disabled = true;
+        speedStatus.textContent = 'Testing your connection speed...';
+        speedStatus.classList.add('testing');
+        
+        let speed = 0;
+        const targetSpeed = Math.floor(Math.random() * 50) + 15; // 15-65 Mbps
+        const maxGaugeSpeed = 100; // Max speed for gauge visual
+        
+        const interval = setInterval(() => {
+            speed += 2;
+            if (speed > targetSpeed) speed = targetSpeed;
+            
+            speedNumber.textContent = speed;
+            
+            // Update gauge (377 is approximate arc length)
+            const progress = (speed / maxGaugeSpeed) * 377;
+            gaugePath.style.strokeDashoffset = 377 - progress;
+            
+            if (speed >= targetSpeed) {
+                clearInterval(interval);
+                speedNumber.textContent = targetSpeed;
+                speedStatus.classList.remove('testing');
+                
+                if (targetSpeed < 30) {
+                    speedStatus.innerHTML = `Your current speed: <strong style="color: var(--pink)">${targetSpeed} Mbps</strong>. Upgrade to our fiber network for speeds up to <strong style="color: var(--teal)">1000+ Mbps</strong>! 🚀`;
+                } else if (targetSpeed < 50) {
+                    speedStatus.innerHTML = `Your current speed: <strong style="color: var(--teal)">${targetSpeed} Mbps</strong>. Good, but our fiber can deliver <strong>${targetSpeed * 15}+ Mbps</strong> for the same price!`;
+                } else {
+                    speedStatus.innerHTML = `Your current speed: <strong style="color: var(--teal)">${targetSpeed} Mbps</strong>. Not bad! But fiber offers consistent speeds and lower latency.`;
+                }
+                
+                btn.disabled = false;
+                btn.querySelector('span').textContent = 'Test Again';
+                
+                showToast('Speed test completed!', 'success');
+            }
+        }, 50);
+    });
+}
+
+// Coverage Checker
+function initCoverageChecker() {
+    const checkBtn = document.getElementById('checkCoverageBtn');
+    const zipInput = document.getElementById('zipInput');
+    const resultDiv = document.getElementById('coverageResult');
+    
+    if (!checkBtn || !zipInput || !resultDiv) return;
+    
+    // Format ZIP code input
+    zipInput.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5);
+    });
+    
+    checkBtn.addEventListener('click', function() {
+        const zipCode = zipInput.value.trim();
+        
+        // Validate ZIP code
+        if (!/^\d{5}$/.test(zipCode)) {
+            resultDiv.className = 'coverage-result error show';
+            resultDiv.innerHTML = `
+                <h3>❌ Invalid ZIP Code</h3>
+                <p>Please enter a valid 5-digit ZIP code.</p>
+            `;
+            showToast('Please enter a valid ZIP code', 'error');
+            return;
+        }
+        
+        // Disable button and show loading
+        checkBtn.disabled = true;
+        checkBtn.textContent = 'Checking...';
+        resultDiv.classList.remove('show');
+        
+        // Simulate API call
+        setTimeout(() => {
+            // For demo: 80% of ZIP codes are covered
+            const isCovered = Math.random() > 0.2;
+            
+            if (isCovered) {
+                resultDiv.className = 'coverage-result success show';
+                resultDiv.innerHTML = `
+                    <h3>🎉 Great News!</h3>
+                    <p>Fiber internet is available in your area (${zipCode}). Our fastest plan offers speeds up to <strong>1000 Mbps</strong> with no data caps, no contracts, and 24/7 support!</p>
+                    <p style="margin-top: 1rem;"><a href="#plans" class="inline-link" style="color: var(--teal); text-decoration: underline;">View our plans →</a></p>
+                `;
+                showToast('Fiber is available in your area!', 'success');
+            } else {
+                resultDiv.className = 'coverage-result error show';
+                resultDiv.innerHTML = `
+                    <h3>📍 Not Yet Available</h3>
+                    <p>We're not in ${zipCode} yet, but we're expanding rapidly! Leave your email and we'll notify you when we arrive in your area.</p>
+                    <p style="margin-top: 1rem;"><a href="#contact" class="inline-link" style="color: var(--teal); text-decoration: underline;">Stay updated →</a></p>
+                `;
+                showToast('Area not covered yet. We\'ll notify you when we expand!', 'error');
+            }
+            
+            checkBtn.disabled = false;
+            checkBtn.textContent = 'Check Availability';
+        }, 1500);
+    });
+    
+    // Allow Enter key to submit
+    zipInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            checkBtn.click();
+        }
+    });
+}
+
+// FAQ Accordion
+function initFAQ() {
+    const faqItems = document.querySelectorAll('.faq-item');
+    
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        const answer = item.querySelector('.faq-answer');
+        
+        if (!question || !answer) return;
+        
+        question.addEventListener('click', () => {
+            const isActive = item.classList.contains('active');
+            
+            // Close all other items
+            faqItems.forEach(otherItem => {
+                if (otherItem !== item && otherItem.classList.contains('active')) {
+                    otherItem.classList.remove('active');
+                    const otherAnswer = otherItem.querySelector('.faq-answer');
+                    const otherButton = otherItem.querySelector('.faq-question');
+                    if (otherAnswer) otherAnswer.style.maxHeight = '0';
+                    if (otherButton) otherButton.setAttribute('aria-expanded', 'false');
+                }
+            });
+            
+            // Toggle current item
+            if (isActive) {
+                item.classList.remove('active');
+                answer.style.maxHeight = '0';
+                question.setAttribute('aria-expanded', 'false');
+            } else {
+                item.classList.add('active');
+                answer.style.maxHeight = answer.scrollHeight + 'px';
+                question.setAttribute('aria-expanded', 'true');
+            }
+        });
+        
+        // Keyboard accessibility
+        question.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                question.click();
+            }
+        });
+    });
+}
+
+// 3D Tilt Effect for Feature Cards
+function init3DTiltCards() {
+    const featureCards = document.querySelectorAll('.feature-card');
+    
+    featureCards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = (y - centerY) / 10;
+            const rotateY = (centerX - x) / 10;
+            
+            card.style.setProperty('--rx', `${rotateX}deg`);
+            card.style.setProperty('--ry', `${rotateY}deg`);
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.setProperty('--rx', '0deg');
+            card.style.setProperty('--ry', '0deg');
+        });
+    });
+}
+
+// Particle Network Canvas
+function initParticleNetwork() {
+    const hero = document.querySelector('.hero');
+    if (!hero) return;
+    
+    const canvas = document.createElement('canvas');
+    canvas.style.position = 'absolute';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.opacity = '0.5';
+    hero.appendChild(canvas);
+    
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let animationFrameId;
+    
+    function resize() {
+        canvas.width = hero.offsetWidth;
+        canvas.height = hero.offsetHeight;
+        init();
+    }
+    
+    function Particle() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.5;
+        this.radius = Math.random() * 2 + 1;
+    }
+    
+    Particle.prototype.draw = function() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(20, 184, 166, 0.6)';
+        ctx.fill();
+    };
+    
+    Particle.prototype.update = function() {
+        this.x += this.vx;
+        this.y += this.vy;
+        
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+    };
+    
+    function init() {
+        particles = [];
+        const particleCount = Math.min(50, Math.floor(canvas.width / 20));
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+    }
+    
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        particles.forEach(p => {
+            p.update();
+            p.draw();
+        });
+        
+        // Connect nearby particles
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                if (dist < 150) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(20, 184, 166, ${0.2 * (1 - dist / 150)})`;
+                    ctx.lineWidth = 1;
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.stroke();
+                }
+            }
+        }
+        
+        animationFrameId = requestAnimationFrame(animate);
+    }
+    
+    resize();
+    animate();
+    
+    window.addEventListener('resize', resize);
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+        cancelAnimationFrame(animationFrameId);
+    });
+}
+
+// Enhanced Form Validation
+function enhanceFormValidation() {
+    const form = document.getElementById('bookNowForm');
+    if (!form) return;
+    
+    const inputs = form.querySelectorAll('input, textarea, select');
+    
+    inputs.forEach(input => {
+        input.addEventListener('blur', () => validateField(input));
+        input.addEventListener('input', () => {
+            if (input.classList.contains('error')) {
+                validateField(input);
+            }
+        });
+    });
+    
+    function validateField(field) {
+        const errorSpan = field.nextElementSibling;
+        if (!errorSpan || !errorSpan.classList.contains('error-message')) return;
+        
+        if (!field.validity.valid) {
+            field.classList.add('error');
+            field.classList.remove('success');
+            
+            if (field.validity.valueMissing) {
+                errorSpan.textContent = 'This field is required';
+            } else if (field.validity.typeMismatch) {
+                errorSpan.textContent = `Please enter a valid ${field.type}`;
+            } else if (field.validity.patternMismatch) {
+                errorSpan.textContent = 'Please match the requested format';
+            } else {
+                errorSpan.textContent = field.validationMessage;
+            }
+        } else {
+            field.classList.remove('error');
+            field.classList.add('success');
+            errorSpan.textContent = '';
+        }
+    }
+    
+    // Enhanced form submission
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        let isValid = true;
+        inputs.forEach(input => {
+            validateField(input);
+            if (!input.validity.valid && input.hasAttribute('required')) {
+                isValid = false;
+            }
+        });
+        
+        if (isValid) {
+            showToast('Booking submitted successfully! We\'ll contact you shortly.', 'success');
+            form.reset();
+            inputs.forEach(input => {
+                input.classList.remove('success', 'error');
+            });
+        } else {
+            showToast('Please fill in all required fields correctly', 'error');
+        }
+    });
+}
+
+// Initialize all enhanced features
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all interactive features
+    initScrollProgress();
+    initScrollToTop();
+    initChatWidget();
+    initSpeedTest();
+    initCoverageChecker();
+    initFAQ();
+    init3DTiltCards();
+    initParticleNetwork();
+    enhanceFormValidation();
+});
