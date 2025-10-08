@@ -799,15 +799,6 @@ function initBookNowForm() {
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // Extra validation for phone number before submission
-        const phoneInput = form.querySelector('#bookPhone');
-        const phoneDigits = phoneInput.value.replace(/\D/g, '');
-        if (phoneDigits.length !== 11) {
-            validateField(phoneInput); // Show error
-            phoneInput.focus(); // Focus on phone field
-            return; // Stop submission
-        }
-        
         // Validate all fields
         let isValid = true;
         inputs.forEach(input => {
@@ -904,9 +895,6 @@ function validateField(input) {
             errorMessage.textContent = '';
         }, 300);
     }
-    
-    return isValid;
-}
     
     return isValid;
 }
