@@ -797,9 +797,7 @@ function initBookNowForm() {
     
     // Form submission handler
     form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Validate all fields
+        // Validate all fields first
         let isValid = true;
         inputs.forEach(input => {
             if (!validateField(input)) {
@@ -807,23 +805,31 @@ function initBookNowForm() {
             }
         });
         
-        if (isValid) {
-            // Get form data
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData);
-            
-            // Add timestamp to the data
-            data.submittedAt = new Date().toISOString();
-            
-            // Submit to webhook
-            submitToWebhook(data, form);
-        } else {
+        // Extra validation for phone number before submission
+        const phoneInput = form.querySelector('#bookPhone');
+        const phoneDigits = phoneInput.value.replace(/\D/g, '');
+        if (phoneDigits.length !== 11) {
+            isValid = false;
+            validateField(phoneInput); // Show error
+        }
+        
+        if (!isValid) {
+            e.preventDefault(); // Prevent submission if validation fails
             // Scroll to first error
             const firstError = form.querySelector('.form-group.error');
             if (firstError) {
                 firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
+            return;
         }
+        
+        // If all validation passes, show loading state and let form submit naturally to FormSubmit
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.querySelector('.btn-text').textContent = 'Submitting...';
+        submitButton.querySelector('.btn-icon').textContent = '⏳';
+        
+        // Form will submit naturally to FormSubmit.co
     });
 }
 
@@ -937,110 +943,6 @@ function showSuccessAlert() {
             alert.remove();
         }, 300);
     }, 3000);
-    
-    // Click backdrop to close
-    backdrop.addEventListener('click', () => {
-        backdrop.style.animation = 'fadeOut 0.3s ease';
-        alert.style.animation = 'fadeOut 0.3s ease';
-        
-        setTimeout(() => {
-            backdrop.remove();
-            alert.remove();
-        }, 300);
-    });
-}
-
-// Submit form data to webhook
-async function submitToWebhook(data, form) {
-    const webhookUrl = 'https://hook.eu2.make.com/68aj8jpy4h3r1m2236ikrz2mb5t8u6ix';
-    const submitButton = form.querySelector('button[type="submit"]');
-    const originalButtonText = submitButton.querySelector('.btn-text').textContent;
-    
-    try {
-        // Show loading state
-        submitButton.disabled = true;
-        submitButton.querySelector('.btn-text').textContent = 'Submitting...';
-        submitButton.querySelector('.btn-icon').textContent = '⏳';
-        
-        console.log('Submitting form data:', data);
-        
-        // Submit to webhook
-        const response = await fetch(webhookUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        // Success
-        console.log('Form submitted successfully to webhook');
-        showSuccessAlert();
-        
-        // Reset form after 2 seconds
-        setTimeout(() => {
-            form.reset();
-            submitButton.disabled = false;
-            submitButton.querySelector('.btn-text').textContent = originalButtonText;
-            submitButton.querySelector('.btn-icon').textContent = '🚀';
-        }, 2000);
-        
-    } catch (error) {
-        // Error handling
-        console.error('Failed to submit form:', error);
-        
-        submitButton.disabled = false;
-        submitButton.querySelector('.btn-text').textContent = originalButtonText;
-        submitButton.querySelector('.btn-icon').textContent = '🚀';
-        
-        // Show error message
-        showErrorAlert('Failed to submit form. Please try again or contact support.');
-    }
-}
-
-// Show error alert
-function showErrorAlert(message) {
-    // Create backdrop
-    const backdrop = document.createElement('div');
-    backdrop.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(5px);
-        z-index: 10001;
-        animation: fadeIn 0.3s ease;
-    `;
-    
-    // Create error alert
-    const alert = document.createElement('div');
-    alert.className = 'error-alert';
-    alert.innerHTML = `
-        <div class="error-icon">❌</div>
-        <h3>Submission Failed</h3>
-        <p>${message}</p>
-        <button onclick="this.closest('.error-alert').parentElement.click()">Try Again</button>
-    `;
-    
-    document.body.appendChild(backdrop);
-    document.body.appendChild(alert);
-    
-    // Auto close after 5 seconds
-    setTimeout(() => {
-        backdrop.style.animation = 'fadeOut 0.3s ease';
-        alert.style.animation = 'fadeOut 0.3s ease';
-        
-        setTimeout(() => {
-            backdrop.remove();
-            alert.remove();
-        }, 300);
-    }, 5000);
     
     // Click backdrop to close
     backdrop.addEventListener('click', () => {
