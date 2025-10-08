@@ -736,7 +736,7 @@ function initBookNowForm() {
     const form = document.getElementById('bookNowForm');
     if (!form) return;
     
-    // Add real-time validation on blur
+    // Add real-time validation on blur and input
     const inputs = form.querySelectorAll('input[required], textarea[required], select[required]');
     inputs.forEach(input => {
         input.addEventListener('blur', () => validateField(input));
@@ -745,6 +745,52 @@ function initBookNowForm() {
             const formGroup = input.closest('.form-group');
             if (formGroup.classList.contains('error')) {
                 formGroup.classList.remove('error');
+                const errorMessage = formGroup.querySelector('.error-message');
+                errorMessage.style.opacity = '0';
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                    errorMessage.textContent = '';
+                }, 300);
+            }
+            
+            // Real-time validation for name field - prevent non-alphabetic characters
+            if (input.id === 'bookFullName') {
+                const currentValue = input.value;
+                const cleanValue = currentValue.replace(/[^a-zA-Z\s]/g, '');
+                if (currentValue !== cleanValue) {
+                    input.value = cleanValue;
+                }
+            }
+            
+            // Real-time validation for phone field - only allow numeric characters
+            if (input.id === 'bookPhone') {
+                const currentValue = input.value;
+                const cleanValue = currentValue.replace(/[^0-9]/g, '');
+                if (currentValue !== cleanValue) {
+                    input.value = cleanValue;
+                }
+                
+                const digitsOnly = input.value.replace(/\D/g, '');
+                const formGroup = input.closest('.form-group');
+                const errorMessage = formGroup.querySelector('.error-message');
+                
+                if (digitsOnly.length > 0) {
+                    if (digitsOnly.length !== 11) {
+                        // Show error if not exactly 11 digits
+                        formGroup.classList.add('error');
+                        errorMessage.textContent = `${digitsOnly.length}/11 digits - Must be exactly 11 digits`;
+                        errorMessage.style.color = '#ef4444';
+                        errorMessage.style.display = 'block';
+                        errorMessage.style.opacity = '1';
+                    } else {
+                        // Valid length - remove error
+                        formGroup.classList.remove('error');
+                        errorMessage.textContent = `${digitsOnly.length}/11 digits ✓`;
+                        errorMessage.style.color = '#10b981';
+                        errorMessage.style.display = 'block';
+                        errorMessage.style.opacity = '1';
+                    }
+                }
             }
         });
     });
@@ -752,6 +798,15 @@ function initBookNowForm() {
     // Form submission handler
     form.addEventListener('submit', function(e) {
         e.preventDefault();
+        
+        // Extra validation for phone number before submission
+        const phoneInput = form.querySelector('#bookPhone');
+        const phoneDigits = phoneInput.value.replace(/\D/g, '');
+        if (phoneDigits.length !== 11) {
+            validateField(phoneInput); // Show error
+            phoneInput.focus(); // Focus on phone field
+            return; // Stop submission
+        }
         
         // Validate all fields
         let isValid = true;
@@ -766,16 +821,11 @@ function initBookNowForm() {
             const formData = new FormData(form);
             const data = Object.fromEntries(formData);
             
-            // Show success alert
-            showSuccessAlert();
+            // Add timestamp to the data
+            data.submittedAt = new Date().toISOString();
             
-            // Reset form after 2 seconds
-            setTimeout(() => {
-                form.reset();
-            }, 2000);
-            
-            // Log data (you can replace this with actual backend call)
-            console.log('Booking Data:', data);
+            // Submit to webhook
+            submitToWebhook(data, form);
         } else {
             // Scroll to first error
             const firstError = form.querySelector('.form-group.error');
@@ -793,36 +843,70 @@ function validateField(input) {
     let isValid = true;
     let message = '';
     
-    // Check if field is empty
-    if (input.hasAttribute('required') && !input.value.trim()) {
+    const fieldType = input.id;
+    const value = input.value.trim();
+    
+    // Check if required field is empty
+    if (input.hasAttribute('required') && !value) {
         isValid = false;
         message = 'This field is required';
     }
-    // Validate email format
-    else if (input.type === 'email' && input.value.trim()) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(input.value.trim())) {
+    // Validate Full Name field - only alphabetic characters
+    else if (fieldType === 'bookFullName' && value) {
+        const nameRegex = /^[a-zA-Z\s]+$/;
+        if (!nameRegex.test(value)) {
             isValid = false;
-            message = 'Please enter a valid email address';
+            message = 'Name must contain only letters and spaces';
         }
     }
-    // Validate phone format (basic)
-    else if (input.type === 'tel' && input.value.trim()) {
-        const phoneRegex = /^[\d\s\+\-\(\)]{10,}$/;
-        if (!phoneRegex.test(input.value.trim())) {
+    // Validate Email field - proper email format
+    else if (fieldType === 'bookEmail' && value) {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(value)) {
             isValid = false;
-            message = 'Please enter a valid phone number';
+            message = 'Please enter a valid email address (e.g., user@example.com)';
+        }
+    }
+    // Validate Phone field - exactly 11 digits
+    else if (fieldType === 'bookPhone' && value) {
+        // Remove all non-digit characters and count digits
+        const digitsOnly = value.replace(/\D/g, '');
+        if (digitsOnly.length !== 11) {
+            isValid = false;
+            if (digitsOnly.length < 11) {
+                message = `Phone number is too short. Need ${11 - digitsOnly.length} more digits (${digitsOnly.length}/11)`;
+            } else {
+                message = `Phone number is too long. Remove ${digitsOnly.length - 11} digits (${digitsOnly.length}/11)`;
+            }
         }
     }
     
-    // Update UI based on validation
+    // Update UI based on validation with smooth animation
     if (!isValid) {
         formGroup.classList.add('error');
         errorMessage.textContent = message;
+        errorMessage.style.opacity = '0';
+        errorMessage.style.display = 'block';
+        
+        // Smooth fade-in animation
+        setTimeout(() => {
+            errorMessage.style.transition = 'opacity 0.3s ease-in';
+            errorMessage.style.opacity = '1';
+        }, 10);
     } else {
         formGroup.classList.remove('error');
-        errorMessage.textContent = '';
+        errorMessage.style.transition = 'opacity 0.3s ease-out';
+        errorMessage.style.opacity = '0';
+        
+        // Hide after fade-out
+        setTimeout(() => {
+            errorMessage.style.display = 'none';
+            errorMessage.textContent = '';
+        }, 300);
     }
+    
+    return isValid;
+}
     
     return isValid;
 }
@@ -865,6 +949,110 @@ function showSuccessAlert() {
             alert.remove();
         }, 300);
     }, 3000);
+    
+    // Click backdrop to close
+    backdrop.addEventListener('click', () => {
+        backdrop.style.animation = 'fadeOut 0.3s ease';
+        alert.style.animation = 'fadeOut 0.3s ease';
+        
+        setTimeout(() => {
+            backdrop.remove();
+            alert.remove();
+        }, 300);
+    });
+}
+
+// Submit form data to webhook
+async function submitToWebhook(data, form) {
+    const webhookUrl = 'https://hook.eu2.make.com/68aj8jpy4h3r1m2236ikrz2mb5t8u6ix';
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.querySelector('.btn-text').textContent;
+    
+    try {
+        // Show loading state
+        submitButton.disabled = true;
+        submitButton.querySelector('.btn-text').textContent = 'Submitting...';
+        submitButton.querySelector('.btn-icon').textContent = '⏳';
+        
+        console.log('Submitting form data:', data);
+        
+        // Submit to webhook
+        const response = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Success
+        console.log('Form submitted successfully to webhook');
+        showSuccessAlert();
+        
+        // Reset form after 2 seconds
+        setTimeout(() => {
+            form.reset();
+            submitButton.disabled = false;
+            submitButton.querySelector('.btn-text').textContent = originalButtonText;
+            submitButton.querySelector('.btn-icon').textContent = '🚀';
+        }, 2000);
+        
+    } catch (error) {
+        // Error handling
+        console.error('Failed to submit form:', error);
+        
+        submitButton.disabled = false;
+        submitButton.querySelector('.btn-text').textContent = originalButtonText;
+        submitButton.querySelector('.btn-icon').textContent = '🚀';
+        
+        // Show error message
+        showErrorAlert('Failed to submit form. Please try again or contact support.');
+    }
+}
+
+// Show error alert
+function showErrorAlert(message) {
+    // Create backdrop
+    const backdrop = document.createElement('div');
+    backdrop.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+        z-index: 10001;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    // Create error alert
+    const alert = document.createElement('div');
+    alert.className = 'error-alert';
+    alert.innerHTML = `
+        <div class="error-icon">❌</div>
+        <h3>Submission Failed</h3>
+        <p>${message}</p>
+        <button onclick="this.closest('.error-alert').parentElement.click()">Try Again</button>
+    `;
+    
+    document.body.appendChild(backdrop);
+    document.body.appendChild(alert);
+    
+    // Auto close after 5 seconds
+    setTimeout(() => {
+        backdrop.style.animation = 'fadeOut 0.3s ease';
+        alert.style.animation = 'fadeOut 0.3s ease';
+        
+        setTimeout(() => {
+            backdrop.remove();
+            alert.remove();
+        }, 300);
+    }, 5000);
     
     // Click backdrop to close
     backdrop.addEventListener('click', () => {
