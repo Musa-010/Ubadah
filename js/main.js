@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initNewsletterForm();
     initBookNowForm();
     initBookNowScrollButtons();
+    initPlanButtons();
 });
 
 // Typing Effect for Hero Tagline
@@ -1526,3 +1527,62 @@ document.addEventListener('DOMContentLoaded', function() {
     initParticleNetwork();
     enhanceFormValidation();
 });
+
+// Plan Button Click Handler - Auto-scroll to form and prefill package
+function initPlanButtons() {
+    const planButtons = document.querySelectorAll('.plan-btn');
+    const packageSelect = document.getElementById('bookPackage');
+    const bookingForm = document.getElementById('bookNowForm');
+    
+    if (!packageSelect || !bookingForm) return;
+    
+    planButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Get the plan name from data-plan attribute
+            const planName = this.getAttribute('data-plan');
+            
+            if (planName) {
+                // Map plan names to select option values
+                let optionValue = '';
+                switch(planName) {
+                    case 'Basic 6MB Plan':
+                        optionValue = 'polo-10mb';
+                        break;
+                    case 'Standard 6MB Plan':
+                        optionValue = 'super-6mb';
+                        break;
+                    case 'Premium 12MB Plan':
+                        optionValue = 'super-12mb';
+                        break;
+                    default:
+                        optionValue = '';
+                }
+                
+                // Set the selected package in the form
+                if (optionValue) {
+                    packageSelect.value = optionValue;
+                    
+                    // Add visual feedback that the field is filled
+                    packageSelect.classList.remove('error');
+                    packageSelect.classList.add('success');
+                }
+            }
+            
+            // Smooth scroll to the booking form
+            bookingForm.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+            
+            // Optional: Add a small delay then focus on the first input
+            setTimeout(() => {
+                const firstInput = bookingForm.querySelector('input[type="text"]');
+                if (firstInput) {
+                    firstInput.focus();
+                }
+            }, 800);
+        });
+    });
+}
